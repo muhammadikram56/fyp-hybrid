@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+backend/data/User Listening History.csv
+data/User Listening History.csv
