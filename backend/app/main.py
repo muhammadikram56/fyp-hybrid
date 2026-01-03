@@ -49,7 +49,8 @@ async def root():
     return {"message": "Welcome to the HRS API"}
 
 # Import routers here to avoid circular imports if they use 'app' (better to use APIRouter)
-from backend.app.routers import recommendations, discover, personal
+from backend.app.routers import recommendations, discover, personal, artists
 app.include_router(recommendations.router)
 app.include_router(discover.router)
 app.include_router(personal.router)
+app.include_router(artists.router)

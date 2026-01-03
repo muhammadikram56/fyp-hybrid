@@ -34,4 +34,17 @@ export const getSongsByGenre = async (genre) => {
     return response.data;
 };
 
+
+export const getArtists = async (skip = 0, limit = 50) => {
+    const response = await api.get('/artists', {
+        params: { skip, limit }
+    });
+    return response.data;
+};
+
+export const getArtistSongs = async (artistName) => {
+    const response = await api.get(`/artists/${encodeURIComponent(artistName)}`);
+    return response.data;
+};
+
 export default api;

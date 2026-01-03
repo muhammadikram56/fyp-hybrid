@@ -41,24 +41,43 @@ async def get_personal_recommendations(
 ):
     # Payload: { favorites: [ {name: "x", artist: "y"}, ... ] }
     favorites = payload.get("favorites", [])
+    favorite_artists = payload.get("favorite_artists", [])
     
-    if not favorites:
+    if not favorites and not favorite_artists:
         return []
         
     if state.songs_data is None:
          raise HTTPException(status_code=503, detail="Server loading")
 
     # Recommendation Logic
-    # Let's pick 3 random songs from favorites to get a mix
     import random
-    seeds = random.sample(favorites, min(3, len(favorites)))
+    seeds = []
     
+    # 1. Sample from favorite songs
+    if favorites:
+        seeds.extend(random.sample(favorites, min(3, len(favorites))))
+        
+    # 2. Sample from favorite artists
+    # For each artist, pick a random song from state.songs_data
+    if favorite_artists:
+        sampled_artists = random.sample(favorite_artists, min(3, len(favorite_artists)))
+        for artist in sampled_artists:
+            artist_songs = state.songs_data[state.songs_data['artist'] == artist.lower()]
+            if not artist_songs.empty:
+                # Pick a random song by this artist
+                song = artist_songs.sample(1).iloc[0]
+                seeds.append({'name': song['name'], 'artist': song['artist']})
+    
+    if not seeds:
+        return []
+
     results = []
     seen = set()
     
-    # Mark favorites as seen so we don't recommend them back
+    # Mark favorites as seen
     for f in favorites:
         seen.add(f['name'].lower())
+    # Mark artist songs as seen? Maybe not all of them.
 
     for seed in seeds:
          try:

@@ -2,7 +2,7 @@ import React from 'react';
 import SongCard from './SongCard';
 import { motion } from 'framer-motion';
 
-const RecommendationList = ({ recommendations }) => {
+const RecommendationList = ({ recommendations, title = "Recommended for You" }) => {
     if (!recommendations || recommendations.length === 0) return null;
 
     // Separate "Normally Playing" (first item) and "Next Up"
@@ -11,7 +11,7 @@ const RecommendationList = ({ recommendations }) => {
 
     return (
         <div className="w-full max-w-6xl mx-auto mt-8 px-4">
-            <h2 className="text-2xl font-bold text-white mb-6">Recommended for You</h2>
+            {title && <h2 className="text-2xl font-bold text-white mb-6">{title}</h2>}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {recommendations.map((song, index) => (
                     <motion.div

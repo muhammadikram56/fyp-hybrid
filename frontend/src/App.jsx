@@ -5,12 +5,13 @@ import RecommendationList from './components/RecommendationList';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Discover from './components/Discover';
+import ArtistList from './components/ArtistList';
 import Library from './components/Library';
 import { getContentRecommendations, getHybridRecommendations } from './api';
 import { Loader2, AlertCircle } from 'lucide-react';
 
 function App() {
-  const [view, setView] = useState('home'); // 'home' or 'discover'
+  const [view, setView] = useState('home'); // 'home', 'discover', 'library', 'artists'
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -74,6 +75,8 @@ function App() {
 
       {view === 'library' ? (
         <Library />
+      ) : view === 'artists' ? (
+        <ArtistList />
       ) : view === 'discover' ? (
         <Discover />
       ) : (

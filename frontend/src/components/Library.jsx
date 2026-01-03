@@ -2,40 +2,58 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../contexts/AuthContext';
 import RecommendationList from './RecommendationList';
+import ArtistCard from './ArtistCard';
 import { Loader2 } from 'lucide-react';
 import axios from 'axios';
 
 const Library = () => {
     const { user } = useAuth();
     const [favorites, setFavorites] = useState([]);
+    const [favoriteArtists, setFavoriteArtists] = useState([]);
     const [loading, setLoading] = useState(true);
     const [recs, setRecs] = useState([]);
     const [recLoading, setRecLoading] = useState(false);
 
     useEffect(() => {
         if (!user) return;
-        fetchFavorites();
+        fetchData();
     }, [user]);
 
-    const fetchFavorites = async () => {
+    const fetchData = async () => {
+        setLoading(true);
         try {
-            const { data, error } = await supabase
+            // Fetch Favorite Songs
+            const { data: songsData, error: songsError } = await supabase
                 .from('favorites')
                 .select('*')
                 .order('created_at', { ascending: false });
 
-            if (error) throw error;
-            // Map to SongCard format
-            const mapped = data.map(f => ({
+            if (songsError) throw songsError;
+
+            setFavorites(songsData.map(f => ({
                 id: f.id,
                 name: f.song_name,
                 artist: f.artist_name,
                 spotify_preview_url: f.preview_url,
                 spotify_url: f.spotify_url
-            }));
-            setFavorites(mapped);
+            })));
+
+            // Fetch Favorite Artists
+            const { data: artistsData, error: artistsError } = await supabase
+                .from('favorite_artists')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (artistsError) throw artistsError;
+
+            // Map to format suitable for ArtistCard via "name"
+            setFavoriteArtists(artistsData.map(a => ({
+                name: a.artist_name,
+                song_count: 'Unknown' // We don't have count readily available here without join
+            })));
+
         } catch (error) {
-            console.error('Error fetching favorites:', error);
+            console.error('Error fetching library:', error);
         } finally {
             setLoading(false);
         }
@@ -48,7 +66,8 @@ const Library = () => {
         // For now, we just fetch random ones or we need to send the favorites list to backend
         try {
             const response = await axios.post('http://localhost:8000/recommend/favorites', {
-                favorites: favorites.map(f => ({ name: f.name, artist: f.artist }))
+                favorites: favorites.map(f => ({ name: f.name, artist: f.artist })),
+                favorite_artists: favoriteArtists.map(a => a.name)
             });
             setRecs(response.data);
         } catch (error) {
@@ -74,8 +93,24 @@ const Library = () => {
             <h2 className="text-3xl font-bold text-white mb-8">My Library</h2>
 
             <div className="mb-12">
-                <RecommendationList recommendations={favorites} />
+                <RecommendationList recommendations={favorites} title="Favorite Songs" />
             </div>
+
+            {favoriteArtists.length > 0 && (
+                <div className="mb-12">
+                    <h2 className="text-2xl font-bold text-white mb-6">Favorite Artists</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                        {favoriteArtists.map((artist, index) => (
+                            <ArtistCard
+                                key={artist.name}
+                                artist={artist}
+                                index={index}
+                                onClick={() => { }} // Maybe navigate to artist page?
+                            />
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <div className="border-t border-white/10 pt-10">
                 <div className="flex items-center justify-between mb-8">

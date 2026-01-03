@@ -8,10 +8,34 @@ const SongCard = ({ song, index }) => {
     const { handlePlay } = useAudio();
     const { user } = useAuth();
     const [isLiked, setIsLiked] = useState(false);
+    const [imageUrl, setImageUrl] = useState(null);
 
     const spotifySearchUrl = `https://open.spotify.com/search/${encodeURIComponent(song.name + ' ' + song.artist)}`;
 
     useEffect(() => {
+        let mounted = true;
+
+        const fetchMetadata = async () => {
+            // Stagger requests to avoid 429
+            await new Promise(resolve => setTimeout(resolve, index * 200));
+
+            if (!mounted) return;
+
+            try {
+                const query = `${song.name} ${song.artist}`;
+                const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=1`);
+                if (res.status === 403 || res.status === 429) return;
+
+                const data = await res.json();
+                if (mounted && data.results.length > 0) {
+                    setImageUrl(data.results[0].artworkUrl100.replace('100x100', '600x600'));
+                }
+            } catch (e) {
+                // Silent fail
+            }
+        };
+        fetchMetadata();
+
         if (!user) return;
         // Check if liked
         const checkLike = async () => {
@@ -22,10 +46,12 @@ const SongCard = ({ song, index }) => {
                 .eq('song_name', song.name)
                 .eq('artist_name', song.artist)
                 .single();
-            if (data) setIsLiked(true);
+            if (mounted && data) setIsLiked(true);
         };
         checkLike();
-    }, [user, song.name, song.artist]);
+
+        return () => { mounted = false; };
+    }, [user, song.name, song.artist, index]);
 
     const toggleLike = async (e) => {
         e.stopPropagation();
@@ -59,8 +85,11 @@ const SongCard = ({ song, index }) => {
     return (
         <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-4 rounded-xl hover:bg-white/10 transition-colors group relative">
             <div className="relative aspect-square mb-4 bg-gray-800 rounded-lg overflow-hidden grid place-items-center">
-                {/* Fallback image or icon */}
-                <span className="text-4xl select-none opacity-50">🎵</span>
+                {imageUrl ? (
+                    <img src={imageUrl} alt={song.name} className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500" />
+                ) : (
+                    <span className="text-4xl select-none opacity-50">🎵</span>
+                )}
 
                 {/* Play Overlay */}
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">

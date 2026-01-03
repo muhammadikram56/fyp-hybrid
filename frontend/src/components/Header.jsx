@@ -22,6 +22,12 @@ const Header = ({ currentView, setView }) => {
                         Search
                     </button>
                     <button
+                        onClick={() => setView('artists')}
+                        className={`font-medium transition-colors ${currentView === 'artists' ? 'text-primary' : 'text-gray-400 hover:text-white'}`}
+                    >
+                        Artists
+                    </button>
+                    <button
                         onClick={() => setView('discover')}
                         className={`font-medium transition-colors ${currentView === 'discover' ? 'text-primary' : 'text-gray-400 hover:text-white'}`}
                     >
