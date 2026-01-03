@@ -1,38 +1,53 @@
 import React from 'react';
-import { Play, Pause, Music } from 'lucide-react';
+import { Play, ExternalLink } from 'lucide-react';
+import { useAudio } from '../contexts/AudioContext';
 
 const SongCard = ({ song, index }) => {
-    return (
-        <div className="bg-card hover:bg-hover rounded-xl p-4 transition-all duration-300 group hover:-translate-y-1 hover:shadow-xl border border-transparent hover:border-gray-700">
-            <div className="relative aspect-square mb-4 bg-gray-800 rounded-lg overflow-hidden flex items-center justify-center">
-                {/* Placeholder for album art since we might not have it, or use a generic music icon */}
-                <Music className="w-12 h-12 text-gray-600 group-hover:text-primary transition-colors" />
+    const { handlePlay } = useAudio();
+    const spotifySearchUrl = `https://open.spotify.com/search/${encodeURIComponent(song.name + ' ' + song.artist)}`;
 
-                {/* Overlay Play Button */}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center backdrop-blur-[2px]">
-                    <div className="bg-primary rounded-full p-3 shadow-lg transform scale-0 group-hover:scale-100 transition-transform">
-                        <Play className="w-6 h-6 text-black fill-black ml-1" />
-                    </div>
+    return (
+        <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-4 rounded-xl hover:bg-white/10 transition-colors group relative">
+            <div className="relative aspect-square mb-4 bg-gray-800 rounded-lg overflow-hidden grid place-items-center">
+                {/* Fallback image or icon */}
+                <span className="text-4xl select-none opacity-50">🎵</span>
+
+                {/* Play Overlay */}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <Play className="fill-white text-white w-12 h-12" />
                 </div>
             </div>
 
-            <div className="space-y-1">
-                <h3 className="text-white font-bold truncate text-lg" title={song.name}>{song.name}</h3>
+            <div className="mb-2 pr-6">
+                <h3 className="font-bold text-lg truncate" title={song.name}>
+                    {song.name}
+                </h3>
                 <p className="text-gray-400 text-sm truncate">{song.artist}</p>
             </div>
 
-            {song.spotify_preview_url && (
-                <div className="mt-4">
-                    <audio controls className="w-full h-8 opacity-70 hover:opacity-100 transition-opacity">
-                        <source src={song.spotify_preview_url} type="audio/mpeg" />
-                        Your browser does not support the audio element.
-                    </audio>
-                </div>
-            )}
+            {/* External Link Icon */}
+            <a
+                href={spotifySearchUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute top-4 right-4 text-gray-400 hover:text-primary transition-colors p-1"
+                title="Open in Spotify"
+            >
+                <ExternalLink className="w-4 h-4" />
+            </a>
 
-            <div className="absolute top-2 left-2 bg-black/60 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold text-white">
-                {index + 1}
-            </div>
+            {song.spotify_preview_url ? (
+                <audio
+                    controls
+                    className="w-full h-8 mt-2 opacity-60 hover:opacity-100 transition-opacity"
+                    src={song.spotify_preview_url}
+                    onPlay={(e) => handlePlay(e.currentTarget)}
+                >
+                    Your browser does not support the audio element.
+                </audio>
+            ) : (
+                <p className="text-xs text-red-400 mt-2">No preview available</p>
+            )}
         </div>
     );
 };

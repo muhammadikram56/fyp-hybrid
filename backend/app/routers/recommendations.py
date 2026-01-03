@@ -70,8 +70,8 @@ async def get_hybrid_recommendations(
         )
         
         recommendations = recommender.give_recommendations(
-            song_name=song_name,
-            artist_name=artist_name,
+            song_name=song_name.lower(),
+            artist_name=artist_name.lower(),
             songs_data=state.filtered_data,
             transformed_matrix=state.transformed_hybrid_data,
             track_ids=state.track_ids,
