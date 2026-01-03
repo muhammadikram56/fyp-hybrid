@@ -1,10 +1,60 @@
-import React from 'react';
-import { Play, ExternalLink } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Play, ExternalLink, Heart } from 'lucide-react';
 import { useAudio } from '../contexts/AudioContext';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../supabaseClient';
 
 const SongCard = ({ song, index }) => {
     const { handlePlay } = useAudio();
+    const { user } = useAuth();
+    const [isLiked, setIsLiked] = useState(false);
+
     const spotifySearchUrl = `https://open.spotify.com/search/${encodeURIComponent(song.name + ' ' + song.artist)}`;
+
+    useEffect(() => {
+        if (!user) return;
+        // Check if liked
+        const checkLike = async () => {
+            const { data } = await supabase
+                .from('favorites')
+                .select('id')
+                .eq('user_id', user.id)
+                .eq('song_name', song.name)
+                .eq('artist_name', song.artist)
+                .single();
+            if (data) setIsLiked(true);
+        };
+        checkLike();
+    }, [user, song.name, song.artist]);
+
+    const toggleLike = async (e) => {
+        e.stopPropagation();
+        if (!user) {
+            alert("Please login to save songs!");
+            return;
+        }
+
+        if (isLiked) {
+            const { error } = await supabase
+                .from('favorites')
+                .delete()
+                .eq('user_id', user.id)
+                .eq('song_name', song.name)
+                .eq('artist_name', song.artist);
+            if (!error) setIsLiked(false);
+        } else {
+            const { error } = await supabase
+                .from('favorites')
+                .insert([{
+                    user_id: user.id,
+                    song_name: song.name,
+                    artist_name: song.artist,
+                    preview_url: song.spotify_preview_url,
+                    spotify_url: spotifySearchUrl
+                }]);
+            if (!error) setIsLiked(true);
+        }
+    };
 
     return (
         <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-4 rounded-xl hover:bg-white/10 transition-colors group relative">
@@ -25,16 +75,27 @@ const SongCard = ({ song, index }) => {
                 <p className="text-gray-400 text-sm truncate">{song.artist}</p>
             </div>
 
-            {/* External Link Icon */}
-            <a
-                href={spotifySearchUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="absolute top-4 right-4 text-gray-400 hover:text-primary transition-colors p-1"
-                title="Open in Spotify"
-            >
-                <ExternalLink className="w-4 h-4" />
-            </a>
+            <div className="absolute top-4 right-4 flex gap-2">
+                {/* Like Button */}
+                <button
+                    onClick={toggleLike}
+                    className={`p-1 transition-transform hover:scale-110 ${isLiked ? 'text-green-500 fill-green-500' : 'text-gray-400 hover:text-white'}`}
+                    title={isLiked ? "Remove from Library" : "Add to Library"}
+                >
+                    <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
+                </button>
+
+                {/* External Link Icon */}
+                <a
+                    href={spotifySearchUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-400 hover:text-primary transition-colors p-1"
+                    title="Open in Spotify"
+                >
+                    <ExternalLink className="w-4 h-4" />
+                </a>
+            </div>
 
             {song.spotify_preview_url ? (
                 <audio

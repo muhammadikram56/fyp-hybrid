@@ -4,10 +4,13 @@ import DiversitySlider from './components/DiversitySlider';
 import RecommendationList from './components/RecommendationList';
 import Header from './components/Header';
 import Hero from './components/Hero';
+import Discover from './components/Discover';
+import Library from './components/Library';
 import { getContentRecommendations, getHybridRecommendations } from './api';
 import { Loader2, AlertCircle } from 'lucide-react';
 
 function App() {
+  const [view, setView] = useState('home'); // 'home' or 'discover'
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -66,37 +69,43 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-darker text-white font-sans selection:bg-primary selection:text-black pb-20">
-      <Header />
+    <div className="bg-darker min-h-screen text-white font-sans selection:bg-primary selection:text-black pb-20">
+      <Header currentView={view} setView={setView} />
 
-      <main className="container mx-auto px-4 pt-10 flex flex-col items-center">
-        <Hero />
+      {view === 'library' ? (
+        <Library />
+      ) : view === 'discover' ? (
+        <Discover />
+      ) : (
+        <main className="container mx-auto px-4 pt-10 flex flex-col items-center">
+          <Hero />
 
-        <SearchBar onSearch={handleSearch} />
+          <SearchBar onSearch={handleSearch} />
 
-        <div className="mt-8 w-full max-w-2xl">
-          <DiversitySlider value={diversity} onChange={handleDiversityChange} />
-        </div>
-
-        {loading && (
-          <div className="mt-12 flex flex-col items-center text-primary animate-pulse">
-            <Loader2 className="w-10 h-10 animate-spin mb-2" />
-            <span>Digging through the crates...</span>
+          <div className="mt-8 w-full max-w-2xl">
+            <DiversitySlider value={diversity} onChange={handleDiversityChange} />
           </div>
-        )}
 
-        {error && (
-          <div className="mt-12 p-4 bg-red-900/20 border border-red-500/50 text-red-100 rounded-lg flex items-center gap-2">
-            <AlertCircle className="w-5 h-5 text-red-500" />
-            <span>{error}</span>
-          </div>
-        )}
+          {loading && (
+            <div className="mt-12 flex flex-col items-center text-primary animate-pulse">
+              <Loader2 className="w-10 h-10 animate-spin mb-2" />
+              <span>Digging through the crates...</span>
+            </div>
+          )}
 
-        {!loading && !error && recommendations.length > 0 && (
-          <RecommendationList recommendations={recommendations} />
-        )}
+          {error && (
+            <div className="mt-12 p-4 bg-red-900/20 border border-red-500/50 text-red-100 rounded-lg flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-red-500" />
+              <span>{error}</span>
+            </div>
+          )}
 
-      </main>
+          {!loading && !error && recommendations.length > 0 && (
+            <RecommendationList recommendations={recommendations} />
+          )}
+
+        </main>
+      )}
     </div>
   );
 }

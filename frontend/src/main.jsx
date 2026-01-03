@@ -4,13 +4,16 @@ import './index.css'
 import App from './App.jsx'
 import ErrorBoundary from './ErrorBoundary.jsx'
 import { AudioProvider } from './contexts/AudioContext.jsx'
+import { AuthProvider } from './contexts/AuthContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ErrorBoundary>
-      <AudioProvider>
-        <App />
-      </AudioProvider>
+      <AuthProvider>
+        <AudioProvider>
+          <App />
+        </AudioProvider>
+      </AuthProvider>
     </ErrorBoundary>
   </StrictMode>,
 )

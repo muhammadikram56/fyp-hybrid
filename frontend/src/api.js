@@ -20,4 +20,18 @@ export const getHybridRecommendations = async (song, artist, k = 10, diversity =
     return response.data;
 };
 
+export const getSongsByMood = async (mood) => {
+    const response = await api.get('/discover/by-mood', {
+        params: { mood, limit: 20 }
+    });
+    return response.data;
+};
+
+export const getSongsByGenre = async (genre) => {
+    const response = await api.get('/discover/by-genre', {
+        params: { genre, limit: 20 }
+    });
+    return response.data;
+};
+
 export default api;

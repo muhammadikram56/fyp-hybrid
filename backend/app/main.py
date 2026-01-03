@@ -33,12 +33,12 @@ async def lifespan(app: FastAPI):
     yield
     # Clean up on shutdown
 
-app = FastAPI(title="HRS API", version="1.0", lifespan=lifespan)
+app = FastAPI(lifespan=lifespan)
 
-# CORS
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # For dev
+    allow_origins=["http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "http://localhost:5179"],  # Allow frontend
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -49,5 +49,7 @@ async def root():
     return {"message": "Welcome to the HRS API"}
 
 # Import routers here to avoid circular imports if they use 'app' (better to use APIRouter)
-from backend.app.routers import recommendations
+from backend.app.routers import recommendations, discover, personal
 app.include_router(recommendations.router)
+app.include_router(discover.router)
+app.include_router(personal.router)
