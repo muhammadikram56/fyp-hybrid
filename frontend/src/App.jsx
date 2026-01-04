@@ -7,12 +7,14 @@ import Hero from './components/Hero';
 import Discover from './components/Discover';
 import ArtistList from './components/ArtistList';
 import Library from './components/Library';
+import Dashboard from './components/Dashboard';
+import ProfileSettings from './components/ProfileSettings';
 import Footer from './components/Footer';
 import { getContentRecommendations, getHybridRecommendations } from './api';
 import { Loader2, AlertCircle } from 'lucide-react';
 
 function App() {
-  const [view, setView] = useState('home'); // 'home', 'discover', 'library', 'artists'
+  const [view, setView] = useState('home'); // 'home', 'discover', 'library', 'artists', 'settings'
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -71,15 +73,19 @@ function App() {
   };
 
   return (
-    <div className="bg-darker min-h-screen text-white font-sans selection:bg-primary selection:text-black pb-20">
+    <div className="bg-background min-h-screen text-foreground font-sans selection:bg-primary selection:text-black pb-20 transition-colors duration-300">
       <Header currentView={view} setView={setView} />
 
       {view === 'library' ? (
         <Library />
-      ) : view === 'artists' ? (
-        <ArtistList />
       ) : view === 'discover' ? (
         <Discover />
+      ) : view === 'artists' ? (
+        <ArtistList />
+      ) : view === 'dashboard' ? (
+        <Dashboard />
+      ) : view === 'settings' ? (
+        <ProfileSettings />
       ) : (
         <main className="container mx-auto px-4 pt-10 flex flex-col items-center">
           <Hero />

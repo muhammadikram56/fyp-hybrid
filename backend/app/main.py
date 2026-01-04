@@ -54,3 +54,6 @@ app.include_router(recommendations.router)
 app.include_router(discover.router)
 app.include_router(personal.router)
 app.include_router(artists.router)
+
+from backend.app.routers import stats
+app.include_router(stats.router)

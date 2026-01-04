@@ -145,4 +145,7 @@ npm run dev
 *   **Personal Library**: "Heart" songs to save them to your profile.
 *   **Smart Search**: Instant search for songs and artists.
 *   **Audio Previews**: Play Spotify snippets directly from the UI.
+*   **Data Reporting Dashboard**: Visualizes global user stats, genre distribution, and top favorites.
+*   **User Profile Settings**: Manage personal info, change passwords, and set notification preferences.
+*   **Theme Customization**: Toggle between Light and Dark modes.
 *   **Dark Mode UI**: Professional, responsive interface.

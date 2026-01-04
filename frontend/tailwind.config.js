@@ -4,14 +4,21 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
         primary: "#1DB954", // Spotify Green-ish
-        dark: "#121212",
-        darker: "#000000",
-        card: "#181818",
-        hover: "#282828"
+        background: "var(--background)",
+        foreground: "var(--foreground)",
+        card: "var(--card)",
+        "card-hover": "var(--card-hover)",
+        border: "var(--border)",
+
+        // Keep legacy for safety until full refactor
+        dark: "var(--card)",
+        darker: "var(--background)",
+        hover: "var(--card-hover)"
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

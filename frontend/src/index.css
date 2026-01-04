@@ -3,7 +3,23 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --background: #f8fafc; /* Light Gray/White */
+    --foreground: #0f172a; /* Dark Slate */
+    --card: #ffffff;
+    --card-hover: #f1f5f9;
+    --border: #e2e8f0;
+  }
+
+  .dark {
+    --background: #000000;
+    --foreground: #ffffff;
+    --card: #181818;
+    --card-hover: #282828;
+    --border: #333333;
+  }
+
   body {
-    @apply bg-darker text-white font-sans antialiased selection:bg-primary selection:text-black;
+    @apply bg-background text-foreground font-sans antialiased selection:bg-primary selection:text-black transition-colors duration-300;
   }
 }
