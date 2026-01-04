@@ -7,6 +7,7 @@ import Hero from './components/Hero';
 import Discover from './components/Discover';
 import ArtistList from './components/ArtistList';
 import Library from './components/Library';
+import Footer from './components/Footer';
 import { getContentRecommendations, getHybridRecommendations } from './api';
 import { Loader2, AlertCircle } from 'lucide-react';
 
@@ -109,6 +110,7 @@ function App() {
 
         </main>
       )}
+      <Footer />
     </div>
   );
 }

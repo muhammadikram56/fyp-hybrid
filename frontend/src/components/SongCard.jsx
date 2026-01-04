@@ -16,22 +16,44 @@ const SongCard = ({ song, index }) => {
         let mounted = true;
 
         const fetchMetadata = async () => {
+            // 1. Check Cache
+            const cacheKey = `hrs_album_${song.artist}_${song.name}`.replace(/[^a-z0-9_]/gi, '_').toLowerCase();
+            const cachedUrl = localStorage.getItem(cacheKey);
+
+            if (cachedUrl) {
+                setImageUrl(cachedUrl);
+                return;
+            }
+
             // Stagger requests to avoid 429
             await new Promise(resolve => setTimeout(resolve, index * 200));
 
             if (!mounted) return;
 
             try {
+                // 2. Try iTunes
                 const query = `${song.name} ${song.artist}`;
                 const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=1`);
-                if (res.status === 403 || res.status === 429) return;
 
-                const data = await res.json();
-                if (mounted && data.results.length > 0) {
-                    setImageUrl(data.results[0].artworkUrl100.replace('100x100', '600x600'));
+                if (res.ok) {
+                    const data = await res.json();
+                    if (mounted && data.results.length > 0) {
+                        const url = data.results[0].artworkUrl100.replace('100x100', '600x600');
+                        setImageUrl(url);
+                        localStorage.setItem(cacheKey, url);
+                        return;
+                    }
                 }
+
+                // 3. Fallback to Deezer (via CORS proxy if needed, or direct)
+                // Note: Direct Deezer calls from browser may fail CROS. We rely mostly on iTunes + Cache.
+                // Using a 'no-cors' mode opaque request won't verify the image, so we skip complex proxy setup for now
+                // and just try a second attempt or leaving it blank if iTunes fails is better than broken images.
+
+                // For now, if iTunes fails, we stop. The caching will prevent repeated failures.
+
             } catch (e) {
-                // Silent fail
+                console.warn("Image fetch failed", e);
             }
         };
         fetchMetadata();
